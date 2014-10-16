@@ -91,7 +91,7 @@ static void kbd_callback(const char *name, int name_len,
         "Done. Sending keyboard-interactive responses to server now.\n");
 }
 
-int sftp_download(char *hostname, char *username, char *password, char *sftppath, char *authmode)
+int sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **authmode_arg)
 {
     unsigned long hostaddr;
     int sock, i, auth_pw = 0;
@@ -102,6 +102,8 @@ int sftp_download(char *hostname, char *username, char *password, char *sftppath
     int rc;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
+    char *hostname;
+    char *authmode;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -109,13 +111,17 @@ int sftp_download(char *hostname, char *username, char *password, char *sftppath
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
-
+    hostname = *hostname_arg;
     if (hostname != 0) {
         hostaddr = inet_addr(hostname);
     } else {
         hostaddr = htonl(0x7F000001);
     }
 
+    username = *username_arg;
+    password = *password_arg;
+    sftppath = *sftppath_arg;
+    authmode = *authmode_arg;
     /*
     if(argc > 2) {
         username = argv[2];
@@ -143,9 +149,9 @@ int sftp_download(char *hostname, char *username, char *password, char *sftppath
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if (connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "failed to connect!\n");
+    rc = connect(sock, (struct sockaddr*)(&sin),sizeof(struct sockaddr_in));
+    if (rc != 0) {
+        fprintf(stderr, "error in 'sftp_download': failed to connect! host %s, hostaddr %lu, rc %d\n", hostname, hostaddr, rc);
         return -1;
     }
 

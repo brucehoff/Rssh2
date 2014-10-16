@@ -4,7 +4,7 @@
 ###############################################################################
 
 sftpDownload<-function(host, username, password, filepath, authmode) {
-  
+  .C("sftp_download", host, username, password, filepath, authmode)
 }
 
 

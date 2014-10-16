@@ -34,7 +34,6 @@ rm $zipname
 
 # now run set-up
 cd $genericlibname
-#./configure --enable-shared=yes --enable-static=no --silent
 ./configure --quiet
 
 # next step is to run the make file, which is specified in src/Makevars
