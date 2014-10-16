@@ -7,7 +7,7 @@
  * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
  */
 
-#include "libssh2_config.h"
+#include "libssh2/example/libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
@@ -91,7 +91,7 @@ static void kbd_callback(const char *name, int name_len,
         "Done. Sending keyboard-interactive responses to server now.\n");
 }
 
-int sftp_download(char *hostaddr, char *username, char *password, char *sftppath, char *authmode)
+int sftp_download(char *hostname, char *username, char *password, char *sftppath, char *authmode)
 {
     unsigned long hostaddr;
     int sock, i, auth_pw = 0;
@@ -109,13 +109,14 @@ int sftp_download(char *hostaddr, char *username, char *password, char *sftppath
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
-    /*
-    if (argc > 1) {
-        hostaddr = inet_addr(argv[1]);
+
+    if (hostname != 0) {
+        hostaddr = inet_addr(hostname);
     } else {
         hostaddr = htonl(0x7F000001);
     }
 
+    /*
     if(argc > 2) {
         username = argv[2];
     }

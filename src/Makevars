@@ -1,6 +1,6 @@
 # taken from an example http://cran.r-project.org/doc/manuals/R-exts.html#Using-Makevars
 # this is meant to both compile the C files in src/ and run the makefile in src/libssh2/
-CFLAGS=-Llibssh2/src/.libs/libssh2.a
+PKG_LIBS = -Llibssh2/src/.libs -lssh2
 
 .PHONY: all libssh2
 

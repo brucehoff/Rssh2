@@ -1,6 +1,6 @@
 # !/bin/sh
 
-export genericlibname = libssh2
+export genericlibname=libssh2
 export version=1.4.3
 export versionedlibname=${genericlibname}-${version}
 export zipname=${versionedlibname}.tar.gz
@@ -18,11 +18,23 @@ if [ "$?" -ne "0" ]; then
 fi
 
 # unzip the downloaded archive
-cd src
+
 tar xzf $zipname
+
+# 'set +e' keeps the script from terminating if the folder isn't there
+set +e
+rm -r $genericlibname
+set -e
+
 # change the name of the unzipped folder from, say, libssh2-1.4.3 to libssh2
 mv $versionedlibname $genericlibname
+
+# remove the archive
+rm $zipname
+
 # now run set-up
 cd $genericlibname
-./configure --enable-shared=yes --enable-static=no --quiet
+#./configure --enable-shared=yes --enable-static=no --silent
+./configure --quiet
+
 # next step is to run the make file, which is specified in src/Makevars

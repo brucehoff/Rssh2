@@ -12,3 +12,8 @@
 
 .project
 .settings/**
+
+src/*.o
+src/*.so
+src/libssh2/
+.DS_Store
