@@ -1,0 +1,28 @@
+# !/bin/sh
+
+export genericlibname = libssh2
+export version=1.4.3
+export versionedlibname=${genericlibname}-${version}
+export zipname=${versionedlibname}.tar.gz
+
+# we retrieve the source code for libssh2
+cd src
+export remotepath=http://www.libssh2.org/download/${zipname}
+wget -O $zipname $remotepath
+if [ "$?" -ne "0" ]; then
+	curl -o $zipname $remotepath
+fi
+if [ "$?" -ne "0" ]; then
+  echo "Failed to download $remotepath"
+  exit 1
+fi
+
+# unzip the downloaded archive
+cd src
+tar xzf $zipname
+# change the name of the unzipped folder from, say, libssh2-1.4.3 to libssh2
+mv $versionedlibname $genericlibname
+# now run set-up
+cd $genericlibname
+./configure --enable-shared=yes --enable-static=no --quiet
+# next step is to run the make file, which is specified in src/Makevars
