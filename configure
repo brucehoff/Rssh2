@@ -15,7 +15,6 @@ cd $TMPDIR
 set +e
 rm $zipname
 rm -r $genericlibname
-set -e
 
 # machines have either 'wget' or 'curl', so we try both
 wget -O $zipname $remotepath
@@ -26,6 +25,7 @@ if [ "$?" -ne "0" ]; then
   echo "Failed to download $remotepath"
   exit 1
 fi
+set -e
 
 # unzip the downloaded archive
 tar xzf $zipname

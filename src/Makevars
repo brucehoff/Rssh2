@@ -12,4 +12,4 @@ $(SHLIB): libssh2
 # http://stackoverflow.com/questions/2206128/makefile-calling-another-makefile
 libssh2:
 	cd $(TMPDIR)/libssh2/ && make
-	cp $(TMPDIR)/libssh2/.libs/libssh2.a $(R_PACKAGE_DIR)/libs
+	cp $(TMPDIR)/libssh2/src/.libs/libssh2.a $(R_PACKAGE_DIR)/libs

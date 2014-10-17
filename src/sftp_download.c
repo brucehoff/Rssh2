@@ -3,7 +3,7 @@
  *
  */
 
-/* TODO do I need this??  #include "libssh2_config.h"*/
+#include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 #include <fcntl.h>
@@ -28,7 +28,6 @@
 #endif
 
 #include <sys/types.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -36,10 +35,6 @@
 
 const char *keyfile1="~/.ssh/id_rsa.pub";
 const char *keyfile2="~/.ssh/id_rsa";
-const char *username="username";
-const char *password="password";
-const char *sftppath="/tmp/TEST";
-
 
 static void kbd_callback(const char *name, int name_len, 
              const char *instruction, int instruction_len, int num_prompts,
@@ -91,7 +86,7 @@ static void kbd_callback(const char *name, int name_len,
 /**
  * Download a file from an sftp server.   Note this code is taken from example/sftp.c
  */
-int sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg)
+void sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg, int *result)
 {
     unsigned long hostaddr;
     int sock, i, auth_pw = 0;
@@ -105,7 +100,10 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     char *hostname;
     char *authmode;
     char *localpath;
-    int local_file_handle;
+    char *username;
+    char *password;
+    char *sftppath;
+    FILE *local;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -131,7 +129,8 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     rc = libssh2_init (0);
     if (rc != 0) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
-        return 1;
+        *result = -1;
+        return;
     }
 
     /*
@@ -146,14 +145,17 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     rc = connect(sock, (struct sockaddr*)(&sin),sizeof(struct sockaddr_in));
     if (rc != 0) {
         fprintf(stderr, "error in 'sftp_download': failed to connect! host %s, hostaddr %lu, rc %d\n", hostname, hostaddr, rc);
-        return -1;
+        *result = -1;
+        return;
     }
 
     /* Create a session instance
      */
     session = libssh2_session_init();
-    if(!session)
-        return -1;
+    if(!session) {
+        *result = -1;
+        return;
+    }
 
     /* Since we have set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
@@ -164,7 +166,8 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        *result = -1;
+        return;
     }
 
     /* At this point we havn't yet authenticated.  The first thing to do
@@ -243,11 +246,11 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     }
 
     /* open local file path */
-    local_file_handle = open(localpath, O_WRONLY, S_IWRITE);
-    if (local_file_handle<0) {
-        fprintf(stderr, "Unable to create local file: %s\n",
-                localpath);
-        goto shutdown;
+    local = fopen(localpath, "wb");
+    if (!local) {
+        fprintf(stderr, "Can't open local file %s\n", localpath);
+        *result = -1;
+        return;
     }
 
     fprintf(stderr, "libssh2_sftp_open()!\n");
@@ -264,17 +267,17 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     do {
         char mem[1024];
 
-        /* loop until we fail */
+        /* loop until no more data */
         fprintf(stderr, "libssh2_sftp_read()!\n");
         rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
         if (rc > 0) {
-            write(local_file_handle, mem, rc);
+            fwrite(mem, sizeof(char), rc, local);
         } else {
             break;
         }
     } while (1);
 
-    close(local_file_handle)
+    fclose(local);
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 
@@ -292,5 +295,6 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
 
     libssh2_exit();
 
-    return 0;
+    *result = 0;
+    return;
 }

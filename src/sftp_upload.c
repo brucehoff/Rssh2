@@ -4,7 +4,7 @@
  */
 
 
-/* TODO do I need this??  #include "libssh2_config.h"*/
+#include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-int sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg)
+void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg, int *result)
 {
     unsigned long hostaddr;
     int sock, i, auth_pw = 1;
@@ -48,6 +48,8 @@ int sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, c
     char *ptr;
     char *hostname;
     char *authmode;
+    char *username;
+    char *password;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -73,13 +75,15 @@ int sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, c
     rc = libssh2_init (0);
     if (rc != 0) {
         fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
-        return 1;
+        *result = -1;
+        return;
     }
 
     local = fopen(loclfile, "rb");
     if (!local) {
         fprintf(stderr, "Can't open local file %s\n", loclfile);
-        return -1;
+        *result = -1;
+        return;
     }
 
     /*
@@ -94,14 +98,17 @@ int sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, c
     if (connect(sock, (struct sockaddr*)(&sin),
             sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        *result = -1;
+        return;
     }
 
     /* Create a session instance
      */
     session = libssh2_session_init();
-    if(!session)
-        return -1;
+    if(!session) {
+        *result = -1;
+        return;
+    }
 
     /* Since we have set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
@@ -112,7 +119,8 @@ int sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, c
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        *result = -1;
+        return;
     }
 
     /* At this point we havn't yet authenticated.  The first thing to do
@@ -203,5 +211,6 @@ shutdown:
 
     libssh2_exit();
 
-    return 0;
+    *result = 0;
+    return;
 }

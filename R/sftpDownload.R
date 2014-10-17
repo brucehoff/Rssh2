@@ -4,7 +4,13 @@
 ###############################################################################
 
 sftpDownload<-function(host, username, password, remotepath, localpath) {
-  .C("sftp_download", host, username, password, remotepath, localpath)
+  result<-.C("sftp_download", 
+    as.character(host), 
+    as.character(username), 
+    as.character(password), 
+    as.character(remotepath), 
+    as.character(localpath))
+  result[6]
 }
 
 

@@ -10,7 +10,7 @@ Uploads a file to an ftp server.
 sftpUpload(host, username, password, remotepath, localpath)
 }
 \details{
-Uploads a file to an ftp server.
+Uploads a file to an ftp server.  Will overwrite an existing file at the given path.
 }
 \value{
 TODO
