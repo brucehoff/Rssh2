@@ -6,7 +6,8 @@
 #include "rssh2.h"
 
 static const R_CallMethodDef callMethods[] = {
-    {"sftp_download", (DL_FUNC) &sftp_download, 5},
+	    {"sftp_download", (DL_FUNC) &sftp_download, 5},
+	    {"sftp_upload", (DL_FUNC) &sftp_download, 5},
     {NULL, NULL, 0}
 };
 

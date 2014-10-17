@@ -1,15 +1,12 @@
 /*
  * Sample showing how to do SFTP transfers.
  *
- * The sample code has default values for host name, user name, password
- * and path to copy, but you can specify them on the command line like:
- *
- * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
  */
 
-#include "libssh2/example/libssh2_config.h"
+/* TODO do I need this??  #include "libssh2_config.h"*/
 #include <libssh2.h>
 #include <libssh2_sftp.h>
+#include <fcntl.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
@@ -91,7 +88,10 @@ static void kbd_callback(const char *name, int name_len,
         "Done. Sending keyboard-interactive responses to server now.\n");
 }
 
-int sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **authmode_arg)
+/**
+ * Download a file from an sftp server.   Note this code is taken from example/sftp.c
+ */
+int sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg)
 {
     unsigned long hostaddr;
     int sock, i, auth_pw = 0;
@@ -104,6 +104,8 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     char *hostname;
     char *authmode;
+    char *localpath;
+    int local_file_handle;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -121,18 +123,10 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
     username = *username_arg;
     password = *password_arg;
     sftppath = *sftppath_arg;
-    authmode = *authmode_arg;
-    /*
-    if(argc > 2) {
-        username = argv[2];
-    }
-    if(argc > 3) {
-        password = argv[3];
-    }
-    if(argc > 4) {
-        sftppath = argv[4];
-    }
-    */
+    /* This code supports different authentication methods, but at this time we use only password authentication */
+    authmode = "-p";
+    localpath = *localpath_arg;
+
 
     rc = libssh2_init (0);
     if (rc != 0) {
@@ -248,6 +242,14 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
         goto shutdown;
     }
 
+    /* open local file path */
+    local_file_handle = open(localpath, O_WRONLY, S_IWRITE);
+    if (local_file_handle<0) {
+        fprintf(stderr, "Unable to create local file: %s\n",
+                localpath);
+        goto shutdown;
+    }
+
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
     sftp_handle =
@@ -266,12 +268,13 @@ int sftp_download(char **hostname_arg, char **username_arg, char **password_arg,
         fprintf(stderr, "libssh2_sftp_read()!\n");
         rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
         if (rc > 0) {
-            write(1, mem, rc);
+            write(local_file_handle, mem, rc);
         } else {
             break;
         }
     } while (1);
 
+    close(local_file_handle)
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 

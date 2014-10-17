@@ -3,8 +3,8 @@
 # Author: brucehoff
 ###############################################################################
 
-sftpDownload<-function(host, username, password, filepath, authmode) {
-  .C("sftp_download", host, username, password, filepath, authmode)
+sftpDownload<-function(host, username, password, remotepath, localpath) {
+  .C("sftp_download", host, username, password, remotepath, localpath)
 }
 
 
