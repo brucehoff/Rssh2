@@ -4,7 +4,7 @@
 \docType{package}
 \title{
 What the package does (short line)
-~~ package title ~~
+Remote server access via sftp.  (Future versions could support ssh2, scp, which are implemented by the underlying library.)
 }
 \description{
 More about what it does (maybe more than one line)
@@ -15,26 +15,23 @@ More about what it does (maybe more than one line)
 Package: \tab Rssh2\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2014-10-15\cr
+Date: \tab 2014-10-30\cr
 License: \tab What license is it under?\cr
 }
 ~~ An overview of how to use the package, including the most important ~~
 ~~ functions ~~
 }
 \author{
-Who wrote it
+Bruce Hoff <bruce.hoff@sagebase.org>
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Maintainer: Bruce Hoff <bruce.hoff@sagebase.org>
+Bruce Hoff <bruce.hoff@sagebase.org>
 }
 \references{
-~~ Literature or other references for background information ~~
+www.libssh2.org
 }
 \keyword{ package }
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
 \examples{
-~~ simple examples of the most important functions ~~
+sftpUpload()
+ftpDownload()
 }

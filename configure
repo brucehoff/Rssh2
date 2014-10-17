@@ -4,10 +4,20 @@ export genericlibname=libssh2
 export version=1.4.3
 export versionedlibname=${genericlibname}-${version}
 export zipname=${versionedlibname}.tar.gz
-
-# we retrieve the source code for libssh2
-cd src
 export remotepath=http://www.libssh2.org/download/${zipname}
+
+# Retrieve the source code for libssh2
+
+cd $TMPDIR
+
+# clean up any previous downloads
+# ('set +e' keeps the script from terminating if the folder isn't there)
+set +e
+rm $zipname
+rm -r $genericlibname
+set -e
+
+# machines have either 'wget' or 'curl', so we try both
 wget -O $zipname $remotepath
 if [ "$?" -ne "0" ]; then
 	curl -o $zipname $remotepath
@@ -18,13 +28,7 @@ if [ "$?" -ne "0" ]; then
 fi
 
 # unzip the downloaded archive
-
 tar xzf $zipname
-
-# 'set +e' keeps the script from terminating if the folder isn't there
-set +e
-rm -r $genericlibname
-set -e
 
 # change the name of the unzipped folder from, say, libssh2-1.4.3 to libssh2
 mv $versionedlibname $genericlibname
