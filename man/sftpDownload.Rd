@@ -4,42 +4,33 @@
 sftpDownload
 }
 \description{
-Downloads a file from an ftp server
+Downloads a file from an ftp server.
 }
 \usage{
-sftpDownload()
+sftpDownload(host, username, password, remotepath, localpath)
 }
 \details{
-Downloads a file from an ftp server
+Downloads a file from an ftp server.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a sftpDownload, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+TODO
 }
 \references{
-%% ~put references to the literature/web site here ~
+www.libssh2.org
 }
 \author{
-%%  ~~who you are~~
+Bruce Hoff <bruce.hoff@sagebase.org>
 }
 \note{
-%%  ~~further notes~~
+The underlying C code supports public key authentication but this version of Rssh2 supports only username+password authentication.
 }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+sftpUpload
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-.Primitive("sftpDownload")
+\dontrun{
+sftpDownload("sftp.server.org", "username", "password", "/path/to/dest/remotefile.txt", "/source/location/localfile.txt")
+}
 }
 
