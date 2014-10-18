@@ -105,6 +105,9 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     char *sftppath;
     FILE *local;
 
+    /* state state to failure unless we make it to the end */
+    *result = -1;
+
 #ifdef WIN32
     WSADATA wsadata;
 
@@ -129,7 +132,6 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     rc = libssh2_init (0);
     if (rc != 0) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
-        *result = -1;
         return;
     }
 
@@ -145,7 +147,6 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     rc = connect(sock, (struct sockaddr*)(&sin),sizeof(struct sockaddr_in));
     if (rc != 0) {
         fprintf(stderr, "error in 'sftp_download': failed to connect! host %s, hostaddr %lu, rc %d\n", hostname, hostaddr, rc);
-        *result = -1;
         return;
     }
 
@@ -153,7 +154,6 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
      */
     session = libssh2_session_init();
     if(!session) {
-        *result = -1;
         return;
     }
 
@@ -166,7 +166,6 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        *result = -1;
         return;
     }
 
@@ -176,15 +175,17 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
      * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    /*
     fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
     fprintf(stderr, "\n");
+    */
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+    /* fprintf(stderr, "Authentication methods: %s\n", userauthlist); */
     if (strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
     }
@@ -219,7 +220,7 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
         if (libssh2_userauth_keyboard_interactive(session, username, &kbd_callback) ) {
             fprintf(stderr,
                 "\tAuthentication by keyboard-interactive failed!\n");
-            goto shutdown;
+           goto shutdown;
         } else {
             fprintf(stderr,
                 "\tAuthentication by keyboard-interactive succeeded.\n");
@@ -230,14 +231,14 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
             fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         } else {
-            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
+           fprintf(stderr, "\tAuthentication by public key succeeded.\n");
         }
     } else {
         fprintf(stderr, "No supported authentication methods found!\n");
         goto shutdown;
     }
 
-    fprintf(stderr, "libssh2_sftp_init()!\n");
+   /* fprintf(stderr, "libssh2_sftp_init()!\n");*/
     sftp_session = libssh2_sftp_init(session);
 
     if (!sftp_session) {
@@ -249,11 +250,10 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     local = fopen(localpath, "wb");
     if (!local) {
         fprintf(stderr, "Can't open local file %s\n", localpath);
-        *result = -1;
         return;
     }
 
-    fprintf(stderr, "libssh2_sftp_open()!\n");
+    /*fprintf(stderr, "libssh2_sftp_open()!\n");*/
     /* Request a file via SFTP */
     sftp_handle =
         libssh2_sftp_open(sftp_session, sftppath, LIBSSH2_FXF_READ, 0);
@@ -263,12 +263,12 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
                 libssh2_sftp_last_error(sftp_session));
         goto shutdown;
     }
-    fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
+    /*fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");*/
     do {
         char mem[1024];
 
         /* loop until no more data */
-        fprintf(stderr, "libssh2_sftp_read()!\n");
+       /* fprintf(stderr, "libssh2_sftp_read()!\n");*/
         rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
         if (rc > 0) {
             fwrite(mem, sizeof(char), rc, local);
@@ -291,7 +291,7 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
 #else
     close(sock);
 #endif
-    fprintf(stderr, "all done\n");
+   /* fprintf(stderr, "all done\n");*/
 
     libssh2_exit();
 

@@ -10,10 +10,10 @@ Uploads a file to an ftp server.
 sftpUpload(host, username, password, remotepath, localpath)
 }
 \details{
-Uploads a file to an ftp server.  Will overwrite an existing file at the given path.
+Uploads a file to an ftp server.  Will overwrite an existing file at the specified 'remotepath'.
 }
 \value{
-TODO
+logical:  returns TRUE if successful, FALSE otherwise
 }
 \references{
 www.libssh2.org
@@ -30,7 +30,8 @@ sftpDownload
 }
 \examples{
 \dontrun{
-sftpUpload("sftp.server.org", "username", "password", "/path/to/source/remotefile.txt", "/dest/location/localfile.txt")
+sftpUpload("sftp.server.org", "username", "password", "/path/to/dest/remotefile.txt", "/source/location/localfile.txt")
+
 }
 }
 

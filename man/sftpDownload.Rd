@@ -10,10 +10,10 @@ Downloads a file from an ftp server.
 sftpDownload(host, username, password, remotepath, localpath)
 }
 \details{
-Downloads a file from an ftp server.
+Downloads a file from an ftp server.  Will overwrite an existing file at the specified 'localpath'.
 }
 \value{
-TODO
+logical:  returns TRUE if successful, FALSE otherwise
 }
 \references{
 www.libssh2.org
@@ -30,7 +30,7 @@ sftpUpload
 }
 \examples{
 \dontrun{
-sftpDownload("sftp.server.org", "username", "password", "/path/to/dest/remotefile.txt", "/source/location/localfile.txt")
+sftpDownload("sftp.server.org", "username", "password", "/path/to/source/remotefile.txt", "/dest/location/localfile.txt")
 }
 }
 

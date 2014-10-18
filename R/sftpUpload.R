@@ -1,4 +1,5 @@
 # sftpUpload -- download a file from an sftp server
+# returns TRUE if successful, FALSE otherwise
 # 
 # Author: brucehoff
 ###############################################################################
@@ -9,8 +10,9 @@ sftpUpload<-function(host, username, password, remotepath, localpath) {
     as.character(username), 
     as.character(password), 
     as.character(remotepath), 
-    as.character(localpath))
-  result[6]
+    as.character(localpath), 
+    as.integer(0))
+  if (result[[6]]==0) return(TRUE) else return(FALSE)
 }
 
 

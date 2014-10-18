@@ -51,6 +51,9 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
     char *username;
     char *password;
 
+    /* set result to failure state unless we make it to the end */
+    *result = -1;
+
 #ifdef WIN32
     WSADATA wsadata;
 
@@ -75,14 +78,12 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
     rc = libssh2_init (0);
     if (rc != 0) {
         fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
-        *result = -1;
         return;
     }
 
     local = fopen(loclfile, "rb");
     if (!local) {
         fprintf(stderr, "Can't open local file %s\n", loclfile);
-        *result = -1;
         return;
     }
 
@@ -98,7 +99,6 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
     if (connect(sock, (struct sockaddr*)(&sin),
             sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
-        *result = -1;
         return;
     }
 
@@ -106,7 +106,6 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
      */
     session = libssh2_session_init();
     if(!session) {
-        *result = -1;
         return;
     }
 
@@ -119,7 +118,6 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        *result = -1;
         return;
     }
 
@@ -129,11 +127,13 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
      * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    /*
     fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
     fprintf(stderr, "\n");
+    */
 
     if (auth_pw) {
         /* We could authenticate via password */
@@ -152,7 +152,7 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
         }
     }
 
-    fprintf(stderr, "libssh2_sftp_init()!\n");
+    /* fprintf(stderr, "libssh2_sftp_init()!\n"); */
     sftp_session = libssh2_sftp_init(session);
 
     if (!sftp_session) {
@@ -160,7 +160,7 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
         goto shutdown;
     }
 
-    fprintf(stderr, "libssh2_sftp_open()!\n");
+   /*  fprintf(stderr, "libssh2_sftp_open()!\n"); */
     /* Request a file via SFTP */
     sftp_handle =
         libssh2_sftp_open(sftp_session, sftppath,
@@ -172,7 +172,7 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
         fprintf(stderr, "Unable to open file with SFTP\n");
         goto shutdown;
     }
-    fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n");
+    /* fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n"); */
     do {
         nread = fread(mem, 1, sizeof(mem), local);
         if (nread <= 0) {
@@ -207,7 +207,7 @@ shutdown:
 #endif
     if (local)
         fclose(local);
-    fprintf(stderr, "all done\n");
+    /*fprintf(stderr, "all done\n");*/
 
     libssh2_exit();
 
