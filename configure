@@ -8,7 +8,7 @@ export remotepath=http://www.libssh2.org/download/${zipname}
 
 # Retrieve the source code for libssh2
 
-cd $TMPDIR
+cd /tmp
 
 # clean up any previous downloads
 # ('set +e' keeps the script from terminating if the folder isn't there)
@@ -16,6 +16,7 @@ set +e
 rm $zipname
 rm -r $genericlibname
 
+echo downloading $remotepath to /tmp/$(zipname)
 # machines have either 'wget' or 'curl', so we try both
 wget -O $zipname $remotepath
 if [ "$?" -ne "0" ]; then
@@ -27,6 +28,7 @@ if [ "$?" -ne "0" ]; then
 fi
 set -e
 
+echo extracting $zipname
 # unzip the downloaded archive
 tar xzf $zipname
 
