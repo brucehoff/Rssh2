@@ -1,6 +1,6 @@
 # taken from an example http://cran.r-project.org/doc/manuals/R-exts.html#Using-Makevars
 # this is meant to both compile the C files in src/ and run the makefile in $(TMPDIR)/libssh2/
-
+PKG_CFLAGS = -I$(TMPDIR)libssh2/include
 PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2
 
 .PHONY: all libssh2
@@ -11,5 +11,5 @@ $(SHLIB): libssh2
 
 # http://stackoverflow.com/questions/2206128/makefile-calling-another-makefile
 libssh2:
-	cd $(TMPDIR)/libssh2/ && make
-	cp $(TMPDIR)/libssh2/src/.libs/libssh2.a $(R_PACKAGE_DIR)/libs
+	cd $(TMPDIR)libssh2/ && make
+	cp $(TMPDIR)libssh2/src/.libs/libssh2.a $(R_PACKAGE_DIR)/libs

@@ -31,7 +31,4 @@ Bruce Hoff <bruce.hoff@sagebase.org>
 www.libssh2.org
 }
 \keyword{ package }
-\examples{
-sftpUpload()
-ftpDownload()
-}
+
