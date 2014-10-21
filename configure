@@ -40,6 +40,7 @@ rm $zipname
 
 # now run set-up
 cd $genericlibname
-./configure --quiet CFLAGS=-fPIC
+# TODO The LDFLAGS value is specific for ubuntu.  Need to make more generic
+./configure --quiet CFLAGS=-fPIC LDFLAGS=-L/lib/x86_64-linux-gnu
 
 # next step is to run the make file, which is specified in src/Makevars
