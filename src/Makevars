@@ -1,7 +1,9 @@
 # taken from an example http://cran.r-project.org/doc/manuals/R-exts.html#Using-Makevars
 # this is meant to both compile the C files in src/ and run the makefile in $(TMPDIR)/libssh2/
-PKG_CFLAGS = -I/tmp/libssh2/include
+PKG_CFLAGS = -I/tmp/libssh2/include -I/tmp/libssh2/src
 PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2
+# This says to 'statically' link libssh2.a to the shared library (doesn't work on Mac)
+#PKG_LIBS = -L/tmp/libssh2/src/.libs -Wl,-Bstatic -lssh2 -Wl,-Bdynamic
 
 .PHONY: all libssh2
 
@@ -13,3 +15,4 @@ $(SHLIB): libssh2
 libssh2:
 	cd /tmp/libssh2/ && make
 	cp /tmp/libssh2/src/.libs/libssh2.a $(R_PACKAGE_DIR)/libs
+
