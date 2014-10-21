@@ -40,6 +40,6 @@ rm $zipname
 
 # now run set-up
 cd $genericlibname
-./configure --quiet --without-libgcrypt CFLAGS=-fPIC
+./configure --quiet CFLAGS=-fPIC
 
 # next step is to run the make file, which is specified in src/Makevars
