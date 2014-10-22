@@ -2,18 +2,20 @@
 # this is meant to both compile the C files in src/ and run the makefile in /tmp/libssh2/
 PKG_CFLAGS = -I/tmp/libssh2/include -I/tmp/libssh2/src
 PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2
-# This says to 'statically' link libssh2.a to the shared library (doesn't work on Mac)
-#PKG_LIBS = -L/tmp/libssh2/src/.libs -Wl,-Bstatic -lssh2 -Wl,-Bdynamic
+
 
 .PHONY: all libssh2
 
 all: $(SHLIB)
-	rm -r /tmp/libssh2
+	#	rm -r /tmp/libssh2
 
 $(SHLIB): libssh2
 
 # http://stackoverflow.com/questions/2206128/makefile-calling-another-makefile
 libssh2:
 	cd /tmp/libssh2/ && make
-	cp /tmp/libssh2/src/.libs/libssh2.a $(R_PACKAGE_DIR)/libs
+	# copy to package's library path
+	# cp /tmp/libssh2/src/.libs/*.dylib $(R_PACKAGE_DIR)/libs
+	# the above causes this error at package load time:  Library not loaded: /usr/local/lib/libssh2.1.dylib
+	cp /tmp/libssh2/src/.libs/*.a $(R_PACKAGE_DIR)/libs
 

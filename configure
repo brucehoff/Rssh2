@@ -16,7 +16,7 @@ set +e
 rm $zipname
 rm -r $genericlibname
 
-echo downloading $remotepath to /tmp/$(zipname)
+echo downloading $remotepath to /tmp/$zipname
 # machines have either 'wget' or 'curl', so we try both
 wget -O $zipname $remotepath
 if [ "$?" -ne "0" ]; then
@@ -40,7 +40,7 @@ rm $zipname
 
 # now run set-up
 cd $genericlibname
-# TODO The LDFLAGS value is specific for ubuntu.  Need to make more generic
-./configure --quiet CFLAGS=-fPIC LDFLAGS=-L/lib/x86_64-linux-gnu
+
+./configure --quiet CFLAGS=-fPIC
 
 # next step is to run the make file, which is specified in src/Makevars
