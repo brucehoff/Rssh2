@@ -1,15 +1,19 @@
 # taken from an example http://cran.r-project.org/doc/manuals/R-exts.html#Using-Makevars
-# this is meant to both compile the C files in src/ and run the makefile in $(TMPDIR)/libssh2/
-PKG_CFLAGS = -I/tmp/libssh2/include
-PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2
+# this is meant to both compile the C files in src/ and run the makefile in /tmp/libssh2/
+PKG_CFLAGS = -I/tmp/libssh2/include -I/tmp/libssh2/src
+PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2  -Wl,-rpath $(R_PACKAGE_DIR)/libs
+LIBSSH2_TGT = libssh2_Unix
 
 .PHONY: all libssh2
 
 all: $(SHLIB)
+	#	rm -r /tmp/libssh2
 
 $(SHLIB): libssh2
 
 # http://stackoverflow.com/questions/2206128/makefile-calling-another-makefile
 libssh2:
 	cd /tmp/libssh2/ && make
-	cp /tmp/libssh2/src/.libs/libssh2.lib $(R_PACKAGE_DIR)/libs
+	# copy to package's library path
+	cp /tmp/libssh2/src/.libs/*.dll* $(R_PACKAGE_DIR)/libs
+
