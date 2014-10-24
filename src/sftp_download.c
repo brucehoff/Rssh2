@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "sftp_util.h"
 
 
 const char *keyfile1="~/.ssh/id_rsa.pub";
@@ -97,7 +98,6 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     int rc;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-    char *hostname;
     char *authmode;
     char *localpath;
     char *username;
@@ -114,12 +114,7 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
-    hostname = *hostname_arg;
-    if (hostname != 0) {
-        hostaddr = inet_addr(hostname);
-    } else {
-        hostaddr = htonl(0x7F000001);
-    }
+    sin = get_addr_for_host_name(*hostname_arg);
 
     username = *username_arg;
     password = *password_arg;
@@ -141,12 +136,9 @@ void sftp_download(char **hostname_arg, char **username_arg, char **password_arg
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(22);
-    sin.sin_addr.s_addr = hostaddr;
     rc = connect(sock, (struct sockaddr*)(&sin),sizeof(struct sockaddr_in));
     if (rc != 0) {
-        fprintf(stderr, "error in 'sftp_download': failed to connect! host %s, hostaddr %lu, rc %d\n", hostname, hostaddr, rc);
+        fprintf(stderr, "error in 'sftp_download': failed to connect! rc %d\n", rc);
         return;
     }
 

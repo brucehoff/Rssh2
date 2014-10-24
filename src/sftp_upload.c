@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "sftp_util.h"
 
 void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg, int *result)
 {
@@ -46,10 +47,10 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
     char mem[1024*100];
     size_t nread;
     char *ptr;
-    char *hostname;
     char *authmode;
     char *username;
     char *password;
+    struct hostent *hent;
 
     /* set result to failure state unless we make it to the end */
     *result = -1;
@@ -60,12 +61,7 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
-    hostname = *hostname_arg;
-    if (hostname != 0) {
-        hostaddr = inet_addr(hostname);
-    } else {
-        hostaddr = htonl(0x7F000001);
-    }
+    sin = get_addr_for_host_name(*hostname_arg);
 
     username = *username_arg;
     password = *password_arg;
@@ -93,9 +89,6 @@ void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, 
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(22);
-    sin.sin_addr.s_addr = hostaddr;
     if (connect(sock, (struct sockaddr*)(&sin),
             sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
