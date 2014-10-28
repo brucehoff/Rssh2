@@ -1,3 +1,4 @@
+#!/bin/bash
 ## ### We download and build all the dependencides of libssh2 ###
 ## 
 ## ########## GET Libgpg-error #######

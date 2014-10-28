@@ -1,3 +1,4 @@
+#!/bin/bash
 # this script is used to download the source for a library
 # parameters
 # $1 library name
