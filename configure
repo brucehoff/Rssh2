@@ -1,46 +1,46 @@
 # !/bin/sh
 
-export genericlibname=libssh2
-export version=1.4.3
-export versionedlibname=${genericlibname}-${version}
-export zipname=${versionedlibname}.tar.gz
-export remotepath=http://www.libssh2.org/download/${zipname}
+## ### We download and build all the dependencides of libssh2 ###
+## 
+## ########## GET Libgpg-error #######
+## export gpgerrorLibName=libgpg-error
+## # download and unzip
+## ./downloadsource.sh $gpgerrorLibName libgpg-error-1.17 libgpg-error-1.17.tar.bz2 ftp://ftp.gnupg.org/gcrypt/libgpg-error/
+## # now build
+## export gpgDownloadLocation=/tmp/$gpgerrorLibName
+## export gpgInstallLocation=$gpgDownloadLocation/target
+## pushd $gpgDownloadLocation
+## # specify the install location using --prefix
+## mkdir  $gpgInstallLocation
+## ./configure --quiet --prefix=$gpgInstallLocation
+## make
+## make install
+## popd
+## 
+## ########## GET Libgcrypt #######
+## export gcryptLibName=libgcrypt
+## # download and unzip
+## ./downloadsource.sh $gcryptLibName libgcrypt-1.6.2 libgcrypt-1.6.2.tar.bz2 ftp://ftp.gnupg.org/gcrypt/libgcrypt/
+## # now build
+## export gcryptDownloadLocation=/tmp/$gcryptLibName
+## export gcryptInstallLocation=$gcryptDownloadLocation/target
+## pushd $gcryptDownloadLocation
+## # Note:  There's a typo in the help for gcrypt's configure, which says the following param is 
+## # called --with-libgpg-error-prefix, when it's actually called --with-gpg-error-prefix
+## ./configure --quiet --with-gpg-error-prefix=$gpgInstallLocation --prefix=$gcryptInstallLocation
+## make
+## make install
+## popd
 
-# Retrieve the source code for libssh2
-
-cd /tmp
-
-# clean up any previous downloads
-# ('set +e' keeps the script from terminating if the folder isn't there)
-set +e
-rm $zipname
-rm -r $genericlibname
-
-echo downloading $remotepath to /tmp/$zipname
-# machines have either 'wget' or 'curl', so we try both
-wget -O $zipname $remotepath
-if [ "$?" -ne "0" ]; then
-	curl -o $zipname $remotepath
-fi
-if [ "$?" -ne "0" ]; then
-  echo "Failed to download $remotepath"
-  exit 1
-fi
-set -e
-
-echo extracting $zipname
-# unzip the downloaded archive
-tar xzf $zipname
-
-# change the name of the unzipped folder from, say, libssh2-1.4.3 to libssh2
-mv $versionedlibname $genericlibname
-
-# remove the archive
-rm $zipname
+########## GET libssh2 #######
+export ssh2LibName=libssh2
+./downloadsource.sh $ssh2LibName libssh2-1.4.3 libssh2-1.4.3.tar.gz http://www.libssh2.org/download/
 
 # now run set-up
-cd $genericlibname
-
+pushd /tmp/$ssh2LibName
+# NOTE:  the "--with-libgcrypt-prefix" option doesn't work.  We must rely on the machine
+# having openssl or gcrypt installed in the standard location
+# ./configure --quiet --with-libgcrypt --with-libgcrypt-prefix=$gcryptInstallLocation CFLAGS=-fPIC
 ./configure --quiet CFLAGS=-fPIC
-
-# next step is to run the make file, which is specified in src/Makevars
+make
+popd

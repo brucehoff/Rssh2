@@ -4,31 +4,30 @@ PKG_CFLAGS = -I/tmp/libssh2/include -I/tmp/libssh2/src
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Darwin)
 	# MAC OS
-	PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2
+	PKG_LIBS = -L/tmp/libssh2 -lssh2
 	LIBSSH2_TGT = libssh2_Darwin
 else
 	# UNIX
-	PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2  -Wl,-rpath $(R_PACKAGE_DIR)/libs
+	PKG_LIBS = -Wl,-static -L$(R_PACKAGE_DIR)/libs -lssh2  -Wl,-rpath $(R_PACKAGE_DIR)/libs
 	LIBSSH2_TGT = libssh2_Unix
 endif
 
 .PHONY: all libssh2
 
 all: $(SHLIB)
-	#	rm -r /tmp/libssh2
+	# rm -rf /tmp/libssh2
+	# TODO clean up other dependencies too
 
 $(SHLIB): $(LIBSSH2_TGT)
 
 # http://stackoverflow.com/questions/2206128/makefile-calling-another-makefile
 libssh2_Darwin:
-	cd /tmp/libssh2/ && make
-	# copy to package's library path
-	#cp /tmp/libssh2/src/.libs/*.dylib* $(R_PACKAGE_DIR)/libs
-	# TODO get this to work using shared library
-	cp /tmp/libssh2/src/.libs/*.a $(R_PACKAGE_DIR)/libs
+	# move the static library away from dylib, to a location we specify in PKG_LIBS
+	cp /tmp/libssh2/src/.libs/*.a /tmp/libssh2
 	
 libssh2_Unix:
-	cd /tmp/libssh2/ && make
 	# copy to package's library path
+	# we tell Rssh.so to reference it by using the "-rpath" link option
+	# TODO what about the libgcrypt and libgpg-error libraries?
 	cp /tmp/libssh2/src/.libs/*.so* $(R_PACKAGE_DIR)/libs
 
