@@ -8,7 +8,7 @@ ifeq ($(UNAME),Darwin)
 	LIBSSH2_TGT = libssh2_Darwin
 else
 	# UNIX
-	PKG_LIBS = -Wl,-static -L$(R_PACKAGE_DIR)/libs -lssh2  -Wl,-rpath $(R_PACKAGE_DIR)/libs
+	PKG_LIBS = -L$(R_PACKAGE_DIR)/libs -lssh2  -Wl,-rpath $(R_PACKAGE_DIR)/libs
 	LIBSSH2_TGT = libssh2_Unix
 endif
 
