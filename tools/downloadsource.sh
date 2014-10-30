@@ -23,7 +23,7 @@ echo downloading $remotepath to /tmp/$zipname
 # machines have either 'wget' or 'curl', so we try both
 wget -O $zipname $remotepath
 if [ "$?" -ne "0" ]; then
-	curl -o $zipname $remotepath
+	curl --location --output $zipname $remotepath
 fi
 if [ "$?" -ne "0" ]; then
   echo "Failed to download $remotepath"
