@@ -3007,7 +3007,9 @@ int psftp_main(int argc, char *argv[])
     return 0;
 }
 
-int rssh_sftp_download(char *userhost, char *user, char *password, char *sftppath, char *localpath){
+int rssh_sftp_download(char *userhost, char *user, char *password, char *sftppath, char *localpath) {
+	console_batch_mode = 1; /* suppress prompting */
+
 	int portnumber = 22;
 	int ret;
 
