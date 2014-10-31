@@ -1,7 +1,6 @@
-PKG_CFLAGS=-D _FILE_OFFSET_BITS=64
+PKG_CFLAGS=-D_FILE_OFFSET_BITS=64
 PKG_CPPFLAGS=-Iinclude/ -Iinclude/charset/ -Iinclude/windows/ -Iinclude/unix/ -Iinclude/macosx/
 
-SOURCES = $(wildcard *.c putty/*.c)
+SOURCES = $(wildcard *.c putty/*.c putty/unix/*.c)
 
-# not sure if this will work ...
 OBJECTS = $(SOURCES:.c=.o)
