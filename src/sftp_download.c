@@ -20,7 +20,9 @@ int rssh_sftp_download(char *userhost, char *user, char *password, char *sftppat
  */
 void sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg, int *result)
 {
+#ifndef _WINDOWS
 	uxsel_init();
+#endif
 	*result = rssh_sftp_download(*hostname_arg, *username_arg, *password_arg, *sftppath_arg,*localpath_arg);
 	return;
 }
