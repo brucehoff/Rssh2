@@ -2391,55 +2391,55 @@ void do_sftp_cleanup()
 
 void do_sftp(int mode, int modeflags, char *batchfile)
 {
-    FILE *fp;
-    int ret;
+	FILE *fp;
+	int ret;
 
-    /*
-     * Batch mode?
-     */
-    if (mode == 0) {
+	/*
+	 * Batch mode?
+	 */
+	if (mode == 0) {
 
-        /* ------------------------------------------------------------------
-         * Now we're ready to do Real Stuff.
-         */
-        while (1) {
-	    struct sftp_command *cmd;
-	    cmd = sftp_getcmd(NULL, 0, 0);
-	    if (!cmd)
-		break;
-	    ret = cmd->obey(cmd);
-	    if (cmd->words) {
-		int i;
-		for(i = 0; i < cmd->nwords; i++)
-		    sfree(cmd->words[i]);
-		sfree(cmd->words);
-	    }
-	    sfree(cmd);
-	    if (ret < 0)
-		break;
+		/* ------------------------------------------------------------------
+		 * Now we're ready to do Real Stuff.
+		 */
+		while (1) {
+			struct sftp_command *cmd;
+			cmd = sftp_getcmd(NULL, 0, 0);
+			if (!cmd)
+				break;
+			ret = cmd->obey(cmd);
+			if (cmd->words) {
+				int i;
+				for(i = 0; i < cmd->nwords; i++)
+					sfree(cmd->words[i]);
+				sfree(cmd->words);
+			}
+			sfree(cmd);
+			if (ret < 0)
+				break;
+		}
+	} else {
+		fp = fopen(batchfile, "r");
+		if (!fp) {
+			printf("Fatal: unable to open %s\n", batchfile);
+			return;
+		}
+		while (1) {
+			struct sftp_command *cmd;
+			cmd = sftp_getcmd(fp, mode, modeflags);
+			if (!cmd)
+				break;
+			ret = cmd->obey(cmd);
+			if (ret < 0)
+				break;
+			if (ret == 0) {
+				if (!(modeflags & 2))
+					break;
+			}
+		}
+		fclose(fp);
+
 	}
-    } else {
-        fp = fopen(batchfile, "r");
-        if (!fp) {
-	    printf("Fatal: unable to open %s\n", batchfile);
-	    return;
-        }
-        while (1) {
-	    struct sftp_command *cmd;
-	    cmd = sftp_getcmd(fp, mode, modeflags);
-	    if (!cmd)
-		break;
-	    ret = cmd->obey(cmd);
-	    if (ret < 0)
-		break;
-	    if (ret == 0) {
-		if (!(modeflags & 2))
-		    break;
-	    }
-        }
-	fclose(fp);
-
-    }
 }
 
 /* ----------------------------------------------------------------------
@@ -2863,8 +2863,10 @@ int psftp_connect(char *userhost, char *user, int portnumber)
     console_provide_logctx(logctx);
 
 	while (!back->sendok(backhandle)) {
-		if (back->exitcode(backhandle) >= 0)
+		if (back->exitcode(backhandle) >= 0) {
+			printf("psftp_connect: back->exitcode(backhandle) >= 0\n");
 			return 1;
+		}
 		if (ssh_sftp_loop_iteration() < 0) {
 			fprintf(stderr, "ssh_init: error during SSH connection setup\n");
 			return 1;
@@ -3007,30 +3009,31 @@ int psftp_main(int argc, char *argv[])
     return 0;
 }
 
-int rssh_sftp_download(char *userhost, char *user, char *password, char *sftppath, char *localpath) {
-	console_batch_mode = 1; /* suppress prompting */
-
-	int portnumber = 22;
+int rssh_sftp_init(char *host, char *user) {
 	int ret;
-
+	console_batch_mode = 1; /* suppress prompts */
 	sk_init();
 
+	/* Load Default Settings before doing anything else. */
 	conf = conf_new();
-
 	do_defaults(NULL, conf);
+    loaded_session = FALSE;
 
-	ret = psftp_connect(userhost, user, portnumber);
+	ret = psftp_connect(host, user, 22);
 
-	if (ret)
+	if (ret) {
+		printf("rssh_sftp_download: psftp_connect failed.\n");
 		return 1;
-	if (do_sftp_init())
+	}
+
+	if (do_sftp_init()) {
+		printf("rssh_sftp_download: do_sftp_init failed.\n");
 		return 1;
+	}
+	return 0;
+}
 
-	/* This function returns 1 for success, 0 for failure*/
-	ret = sftp_get_file(sftppath, localpath, 0, 0);
-
-	if (ret=0) return 1;
-
+void rssh_clean_up() {
 	if (back != NULL && back->connected(backhandle)) {
 		char ch;
 		back->special(backhandle, TS_EOF);
@@ -3043,6 +3046,41 @@ int rssh_sftp_download(char *userhost, char *user, char *password, char *sftppat
 	cmdline_cleanup();
 	console_provide_logctx(NULL);
 	sk_cleanup();
+}
+
+int rssh_sftp_download(char *host, char *user, char *sftppath, char *localpath) {
+	int ret;
+	ret = rssh_sftp_init(host, user);
+	if (ret!=0) return ret;
+
+	/* This function returns 1 for success, 0 for failure*/
+	ret = sftp_get_file(sftppath, localpath, 0, 0);
+
+	if (ret=0) {
+		printf("rssh_sftp_download: sftp_get_file failed.\n");
+		return 1;
+	}
+
+	rssh_clean_up();
 
 	return 0;
 }
+
+int rssh_sftp_upload(char *host, char *user, char *sftppath, char *localpath) {
+	int ret;
+	ret = rssh_sftp_init(host, user);
+	if (ret!=0) return ret;
+
+	/* This function returns 1 for success, 0 for failure*/
+	ret = sftp_put_file(localpath, sftppath, 0, 0);
+
+	if (ret=0) {
+		printf("rssh_sftp_upload: sftp_put_file failed.\n");
+		return 1;
+	}
+
+	rssh_clean_up();
+
+	return 0;
+}
+

@@ -5,6 +5,7 @@
 ###############################################################################
 
 sftpUpload<-function(host, username, password, remotepath, localpath) {
+  resetState()
   result<-.C("sftp_upload", 
     as.character(host), 
     as.character(username), 
