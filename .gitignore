@@ -13,7 +13,10 @@
 .project
 .settings/**
 
-src/**/*.o
+src/*.o
+src/putty/*.o
+src/putty/unix/*.o
+src/putty/windows/*.o
 src/*.so
 src/libssh2/
 .DS_Store
