@@ -6,6 +6,6 @@
 ###############################################################################
 
 resetState<-function() {
-  library.dynam.unload(chname="Rssh2", libpath=system.file(package = "Rssh2"), verbose=TRUE)
-  library.dynam(chname="Rssh2", package="Rssh2", lib.loc=.libPaths(), verbose=TRUE)
+  library.dynam.unload(chname="Rssh2", libpath=system.file(package = "Rssh2"), verbose=FALSE)
+  library.dynam(chname="Rssh2", package="Rssh2", lib.loc=.libPaths(), verbose=FALSE)
 }

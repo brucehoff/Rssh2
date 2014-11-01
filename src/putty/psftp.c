@@ -3084,3 +3084,59 @@ int rssh_sftp_upload(char *host, char *user, char *sftppath, char *localpath) {
 	return 0;
 }
 
+int rssh_sftp_mkdir(char *host, char *user, char *sftppath) {
+	int ret;
+	ret = rssh_sftp_init(host, user);
+	if (ret!=0) return ret;
+
+	/* This function returns 1 for success, 0 for failure*/
+	struct sftp_command cmd;
+	cmd.words=snewn(2, char*);
+	cmd.words[1]=sftppath;
+	cmd.nwords=2;
+	ret = sftp_cmd_mkdir(&cmd);
+
+	if (ret=0) {
+		printf("rssh_sftp_mkdir: sftp_cmd_mkdir failed.\n");
+		return 1;
+	}
+
+	rssh_clean_up();
+
+	return 0;
+}
+
+int rssh_sftp_rmdir(char *host, char *user, char *sftppath) {
+	int ret;
+	ret = rssh_sftp_init(host, user);
+	if (ret!=0) return ret;
+
+	/* This function returns 1 for success, 0 for failure*/
+	struct sftp_command cmd;
+	cmd.words=snewn(2, char*);
+	cmd.words[1]=sftppath;
+	cmd.nwords=2;
+	ret = sftp_cmd_rmdir(&cmd);
+
+	if (ret=0) {
+		printf("rssh_sftp_mkdir: sftp_cmd_rmdir failed.\n");
+		return 1;
+	}
+
+	rssh_clean_up();
+
+	return 0;
+}
+
+int rssh_sftp_isdir(char *host, char *user, char *sftppath) {
+	int ret;
+	int result;
+	ret = rssh_sftp_init(host, user);
+	if (ret!=0) return 0;
+
+	result = check_is_dir(sftppath);
+	rssh_clean_up();
+	return result;
+}
+
+
