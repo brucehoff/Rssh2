@@ -3,19 +3,27 @@ int rssh_sftp_download(char *userhost, char *user, char *sftppath, char *localpa
 int rssh_sftp_upload(char *userhost, char *user, char *sftppath, char *localpath);
 void set_user_password(char *pass);
 
+static int sftp_initialized = 0;
+
 /**
  * Download a file from an sftp server.
  */
 void sftp_download(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg, int *result)
 {
-	init();
+	if (!sftp_initialized) {
+		init();
+		sftp_initialized = 1;
+	}
 	set_user_password(*password_arg);
 	*result = rssh_sftp_download(*hostname_arg, *username_arg, *sftppath_arg,*localpath_arg);
 }
 
 void sftp_upload(char **hostname_arg, char **username_arg, char **password_arg, char **sftppath_arg, char **localpath_arg, int *result)
 {
-	init();
+	if (!sftp_initialized) {
+		init();
+		sftp_initialized = 1;
+	}
 	set_user_password(*password_arg);
 	*result = rssh_sftp_upload(*hostname_arg, *username_arg, *sftppath_arg,*localpath_arg);
 }
