@@ -1,12 +1,12 @@
-# sftpMkDir -- create a directory on an sftp server
+# sftpRemoveDirectory -- removes a directory from an sftp server
 # returns TRUE if successful, FALSE otherwise
 # 
 # Author: brucehoff
 ###############################################################################
 
-sftpMkDir<-function(host, username, password, remotepath) {
+sftpRemoveDirectory<-function(host, username, password, remotepath) {
   resetState()
-  result<-.C("sftp_mkdir", 
+  result<-.C("sftp_rmdir", 
     as.character(host), 
     as.character(username), 
     as.character(password), 
