@@ -6,10 +6,6 @@
 ###############################################################################
 
 resetState<-function() {
-#  libFilePath<-system.file("libs/Rssh2.so", package = "Rssh2")
-#  result<-dyn.unload(libFilePath)
-#  print(result)
-#  result<-dyn.load(libFilePath)
-  result<-library.dynam("Rssh2", "Rssh2", .libPaths())
-  print(result)
+  library.dynam.unload(chname="Rssh2", libpath=system.file(package = "Rssh2"), verbose=TRUE)
+  library.dynam(chname="Rssh2", package="Rssh2", lib.loc=.libPaths(), verbose=TRUE)
 }

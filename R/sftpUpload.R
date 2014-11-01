@@ -12,7 +12,8 @@ sftpUpload<-function(host, username, password, remotepath, localpath) {
     as.character(password), 
     as.character(remotepath), 
     as.character(localpath), 
-    as.integer(0))
+    as.integer(0),
+    PACKAGE="Rssh2")
   if (result[[6]]==0) return(TRUE) else return(FALSE)
 }
 
